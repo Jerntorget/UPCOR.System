@@ -1,0 +1,9 @@
+**.dll*
+**.pdb
+**.wsp
+**.resx
+**.cache*
+**.resouces*
+obj/*
+**Resources.Designer.cs
+
