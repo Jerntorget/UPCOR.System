@@ -31,28 +31,53 @@ namespace UPCOR.Core
             return Get(userName) == null ? false : true;
         }
 
+        private User f_get_user(ClientContext ctx, string domain, string userName) {
+            string wAccName = String.Format("i:0#.w|{0}\\{1}", domain, userName);
+            string accName = String.Format("{0}\\{1}", domain, userName);
+            User u;
+            try {
+                u = ctx.Web.SiteUsers.GetByLoginName(wAccName);
+                ctx.Load(u.Groups, gs => gs.Include(g => g.Id));
+                ctx.ExecuteQuery();
+            }
+            catch {
+                try {
+                    u = ctx.Web.SiteUsers.GetByLoginName(accName);
+                    ctx.Load(u.Groups, gs => gs.Include(g => g.Id));
+                    ctx.ExecuteQuery();
+                }
+                catch (Exception x) {
+                    return null;
+                }
+            }
+            return u;
+        }
+
+        private GroupCollection f_get_groups(ClientContext ctx) {
+            GroupCollection groups = ctx.Web.SiteGroups;
+            ctx.Load(groups,
+                gs => gs.Include(
+                    g => g.Title,
+                    g => g.Id));
+            ctx.ExecuteQuery();
+            return groups;
+        }
+
         /*
          * 
          * */
         public int[] Groups(string siteUrl, string domain, string userName, out string err) {
             err = "";
-            string accountName = String.Format("i:0#.w|{0}\\{1}", domain, userName);
-            try {
-                ClientContext ctx = new ClientContext(siteUrl);
-                ctx.Credentials = new NetworkCredential(M_ADMIN, M_PASSWORD, M_DOMAIN);
-                User u = ctx.Web.SiteUsers.GetByLoginName(accountName);
-                ctx.Load(u.Groups, gs => gs.Include(g => g.Id));
-                ctx.ExecuteQuery();
-                List<int> ints = new List<int>();
+            ClientContext ctx = new ClientContext(siteUrl);
+            ctx.Credentials = new NetworkCredential(M_ADMIN, M_PASSWORD, M_DOMAIN);
+            List<int> ints = new List<int>();
+            User u = f_get_user(ctx, domain, userName);
+            if (u != null) {
                 foreach (Group g in u.Groups) {
                     ints.Add(g.Id);
                 }
-                return ints.ToArray();
             }
-            catch (Exception ex) {
-                err = ex.Message;
-            }
-            return new int[0];
+            return ints.ToArray();
         }
 
         /*
@@ -60,19 +85,16 @@ namespace UPCOR.Core
          * */
         public void RemoveFromGroups(string siteUrl, string domain, string userName, int[] groupIds, out string err) {
             err = "";
-            string accountName = String.Format("i:0#.w|{0}\\{1}", domain, userName);
+            ClientContext ctx = new ClientContext(siteUrl);
+            ctx.Credentials = new NetworkCredential(M_ADMIN, M_PASSWORD, M_DOMAIN);
+            User u = f_get_user(ctx, domain, userName);
+            if (u == null) return;
             try {
-                ClientContext ctx = new ClientContext(siteUrl);
-                ctx.Credentials = new NetworkCredential(M_ADMIN, M_PASSWORD, M_DOMAIN);
-                User u = ctx.Web.SiteUsers.GetByLoginName(accountName);
-                var groups =
-                    from g in ctx.Web.SiteGroups
-                    where groupIds.Contains(g.Id)
-                    select g;
-
-                foreach (Group g in groups) {
-                    g.Users.Remove(u);
+                foreach (Group g in f_get_groups(ctx)) {
+                    if (groupIds.Contains(g.Id))
+                        g.Users.Remove(u);
                 }
+                ctx.ExecuteQuery();
             }
             catch (Exception ex) {
                 err = ex.Message;
@@ -84,19 +106,16 @@ namespace UPCOR.Core
          * */
         public void AddToGroups(string siteUrl, string domain, string userName, int[] groupIds, out string err) {
             err = "";
-            string accountName = String.Format("i:0#.w|{0}\\{1}", domain, userName);
+            ClientContext ctx = new ClientContext(siteUrl);
+            ctx.Credentials = new NetworkCredential(M_ADMIN, M_PASSWORD, M_DOMAIN);
+            User u = f_get_user(ctx, domain, userName);
+            if (u == null) return;
             try {
-                ClientContext ctx = new ClientContext(siteUrl);
-                ctx.Credentials = new NetworkCredential(M_ADMIN, M_PASSWORD, M_DOMAIN);
-                User u = ctx.Web.SiteUsers.GetByLoginName(accountName);
-                var groups =
-                    from g in ctx.Web.SiteGroups
-                    where groupIds.Contains(g.Id)
-                    select g;
-
-                foreach (Group g in groups) {
-                    g.Users.AddUser(u);
+                foreach (Group g in f_get_groups(ctx)) {
+                    if (groupIds.Contains(g.Id))
+                        g.Users.AddUser(u);
                 }
+                ctx.ExecuteQuery();
             }
             catch (Exception ex) {
                 err = ex.Message;
@@ -233,7 +252,7 @@ namespace UPCOR.Core
                     }
                 }
             }
-            if(groupIds == null)
+            if (groupIds == null)
                 return;
 
             if (groupIds.Length == 0)
@@ -252,7 +271,7 @@ namespace UPCOR.Core
                 uci.Title = givenName + " " + surName;
 
                 foreach (Group g in groups) {
-                    if(groupIds.Contains(g.Id))
+                    if (groupIds.Contains(g.Id))
                         g.Users.Add(uci);
                 }
                 ctx.ExecuteQuery();
