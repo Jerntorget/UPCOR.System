@@ -74,12 +74,12 @@ namespace UPCOR.Core
             }
         }
 
-        public Dictionary<String, String>[] Search(string[] properties, string filter) {
+        public KeyValuePair<String, String>[] Search(string[] properties, string filter) {
             return Search(m_StorePath, properties, filter);
         }
 
-        public Dictionary<String, String>[] Search(string path, string[] properties, string filter) {
-            List<Dictionary<string, string>> result = new List<Dictionary<string, string>>();
+        public KeyValuePair<String, String>[] Search(string path, string[] properties, string filter) {
+            List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
 
             using (DirectoryEntry deRoot = new DirectoryEntry(M_AD + path, M_USER, M_PASSWORD, AuthenticationTypes.Secure)) {
                 using (DirectorySearcher search = new DirectorySearcher(deRoot, filter)) {
@@ -87,7 +87,7 @@ namespace UPCOR.Core
                     if (src != null) {
                         foreach (SearchResult sr in src) {
                             DirectoryEntry de = sr.GetDirectoryEntry();
-                            Dictionary<string, string> dict = new Dictionary<string, string>();
+                            KeyValuePair<string, string> dict = new KeyValuePair<string, string>();
                             foreach (string prop in properties) {
                                 string val = "";
                                 if (de.Properties.Contains(prop)) {
@@ -98,7 +98,7 @@ namespace UPCOR.Core
                                         val = de.Properties.Contains(prop) ? de.Properties[prop].Value.ToString() : String.Empty;
                                     }
                                 }
-                                dict.Add(prop, val);
+                                dict = new KeyValuePair<string, string>(prop, val);
                             }
                             result.Add(dict);
                             de.Close();

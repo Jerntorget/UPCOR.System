@@ -77,6 +77,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Support.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="jtkey2010.pfx" />
@@ -90,7 +91,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"C:\Program Files (x86)\Microsoft SDKs\Windows\v8.0A\bin\NETFX 4.0 Tools\gacutil" /if "$(TargetPath)"
-xcopy "$(TargetPath)" "C:\inetpub\wwwroot\wss\VirtualDirectories\80\bin" /Y</PostBuildEvent>
+xcopy "$(TargetPath)" "C:\inetpub\wwwroot\wss\VirtualDirectories\login.tillsynen.se80\bin" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

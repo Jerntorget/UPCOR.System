@@ -267,7 +267,7 @@ namespace UPCOR.Core
 
                 UserCreationInformation uci = new UserCreationInformation();
                 uci.Email = email;
-                uci.LoginName = domain + "\\" + userName;
+                uci.LoginName = "i:0#.w|"+domain + "\\" + userName;
                 uci.Title = givenName + " " + surName;
 
                 foreach (Group g in groups) {
