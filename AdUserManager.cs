@@ -210,7 +210,7 @@ namespace UPCOR.Core
             UserPrincipal user = this.Get(userName);
             if (user != null) {
                 try {
-                    user.Name = givenName + " " + surName;
+                    //user.Name = givenName + " " + surName;
                     user.GivenName = givenName;
                     user.Surname = surName;
                     user.EmailAddress = email;

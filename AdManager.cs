@@ -99,8 +99,8 @@ namespace UPCOR.Core
                                     }
                                 }
                                 dict = new KeyValuePair<string, string>(prop, val);
+                                result.Add(dict);
                             }
-                            result.Add(dict);
                             de.Close();
                         }
                     }
