@@ -149,7 +149,7 @@ namespace UPCOR.Core
             try {
                 UserPrincipal user = Get(userName);
                 if (user != null) {
-                    user.Enabled = false;
+                    user.Enabled = true;
                     user.Save();
                 }
                 else {
@@ -204,7 +204,7 @@ namespace UPCOR.Core
         /*
          * Update user
          * */
-        public void Update(string userName, string password, string givenName, string surName, string email, out string err) {
+        public void Update(string siteUrl, string userName, string password, string givenName, string surName, string email, out string err) {
             string err2 = "";
             err = "";
             UserPrincipal user = this.Get(userName);
@@ -225,6 +225,13 @@ namespace UPCOR.Core
                     }
                     err = err2 + ";;" + err;
                 }
+
+                try {
+                }
+                catch (Exception ex) {
+                    err = ex.Message;
+                }
+
                 return;
             }
             err = String.Format("Användaren: {0} finns inte.", userName);
