@@ -252,6 +252,8 @@ namespace UPCOR.Core
                         user.GivenName = givenName;
                         user.Surname = surName;
                         user.EmailAddress = email;
+                        user.Enabled = true;
+                        user.PasswordNeverExpires = true;
                         user.Save();
                     }
                     catch (Exception ex) {
